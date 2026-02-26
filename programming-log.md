@@ -66,3 +66,23 @@
 ### 핵심 요약
 
 테스트 코드가 **실제 구현된 코드의 스펙과 맞지 않게 작성**되어 있었던 것이 근본 원인이다. 엔티티 필드, 테이블명, HTTP 상태코드, 응답 구조, 필수 파라미터 등이 전부 불일치했다.
+
+---
+
+## 2. 불필요한 코드 제거
+
+### 1-2. `Collectors` import 제거
+
+| 항목 | 내용 |
+|---|---|
+| **파일** | `OptionController.java` |
+| **이유** | 프로젝트 전체에서 `.toList()`를 사용하는데 이 파일만 `.collect(Collectors.toList())`를 사용하고 있어 스타일이 불일치 |
+| **수정** | `.collect(Collectors.toList())` → `.toList()`로 변경하고, 불필요해진 `import java.util.stream.Collectors` 삭제 |
+
+### 1-3. Javadoc 삭제
+
+| 항목 | 내용 |
+|---|---|
+| **파일** | `Member.java` |
+| **이유** | 다른 엔티티(`Product`, `Option`, `Category` 등)에는 클래스 Javadoc이 없는데 `Member`에만 `@author`, `@since` Javadoc이 존재하여 일관성이 없음 |
+| **수정** | 클래스 Javadoc 블록 삭제 |

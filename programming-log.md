@@ -86,3 +86,18 @@
 | **파일** | `Member.java` |
 | **이유** | 다른 엔티티(`Product`, `Option`, `Category` 등)에는 클래스 Javadoc이 없는데 `Member`에만 `@author`, `@since` Javadoc이 존재하여 일관성이 없음 |
 | **수정** | 클래스 Javadoc 블록 삭제 |
+
+---
+
+## 3. 불필요한 어노테이션 제거
+
+4개 클래스의 생성자에서 `@Autowired`를 제거하고, 불필요해진 `import org.springframework.beans.factory.annotation.Autowired`를 삭제했다.
+
+| 파일 | 이유 |
+|---|---|
+| `MemberController.java` | 단일 생성자이므로 Spring이 자동 주입 |
+| `AdminMemberController.java` | 동일 |
+| `AuthenticationResolver.java` | 동일 |
+| `JwtProvider.java` | 동일 |
+
+Spring Framework는 생성자가 하나뿐인 클래스에 `@Autowired` 없이도 자동으로 의존성을 주입한다(Spring Boot 3.x에서도 동일). 프로젝트의 다른 클래스(`ProductController`, `OptionController` 등)는 이미 `@Autowired` 없이 사용하고 있어, 일관성을 위해 제거했다.

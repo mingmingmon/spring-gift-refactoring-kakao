@@ -3,7 +3,7 @@ package gift.member;
 import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,7 +24,6 @@ public class MemberController {
     private final MemberRepository memberRepository;
     private final JwtProvider jwtProvider;
 
-    @Autowired
     public MemberController(MemberRepository memberRepository, JwtProvider jwtProvider) {
         this.memberRepository = memberRepository;
         this.jwtProvider = jwtProvider;

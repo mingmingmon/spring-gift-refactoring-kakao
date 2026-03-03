@@ -1,6 +1,7 @@
 package gift.order;
 
 import gift.auth.AuthenticationException;
+import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,6 @@ public class OrderController {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Void> handleAuthentication(AuthenticationException e) {
-        return ResponseEntity.status(401).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }

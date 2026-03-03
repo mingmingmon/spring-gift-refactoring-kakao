@@ -2,6 +2,7 @@ package gift.wish;
 
 import gift.auth.AuthenticationException;
 import gift.auth.ForbiddenException;
+import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,12 +61,12 @@ public class WishController {
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Void> handleAuthentication(AuthenticationException e) {
-        return ResponseEntity.status(401).build();
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<Void> handleForbidden(ForbiddenException e) {
-        return ResponseEntity.status(403).build();
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @ExceptionHandler(NoSuchElementException.class)

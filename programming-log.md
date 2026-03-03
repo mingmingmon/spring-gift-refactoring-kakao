@@ -106,49 +106,33 @@ Spring Framework는 생성자가 하나뿐인 클래스에 `@Autowired` 없이�
 
 ## 3. 중복 코드 추출
 
-### 3-1. NameValidator 통합 (ALLOWED_PATTERN 공통 추출)
+### 3-1. 입력 검증 책임 분리
 
 #### 배경
 
-`ProductNameValidator`와 `OptionNameValidator`는 동일한 정규식(`ALLOWED_PATTERN`)을 각자 정의하고 있었고, blank 체크 / 길이 체크 / 패턴 체크 로직도 구조가 같았다.
+`ProductNameValidator`와 `OptionNameValidator`는 동일한 정규식과 유사한 검증 로직을 각자 정의하고 있었다. 공통 추출 방향을 여러 차례 고민했다.
 
 #### 고민한 방향
 
-**B안 (기각): `maxLength`, `allowKakao`, `fieldName`을 매개변수화한 공통 메서드**
+**공통 Validator 추출 (기각)**
 
-```java
-// gift/common/NameValidator.java
-public static List<String> validate(String name, int maxLength, String fieldName, boolean allowKakao)
-```
+공통 로직을 완전히 추출하려면 에러 메시지가 "상품 이름은...", "옵션 이름은..."으로 달라 `fieldName` 같은 새 파라미터가 필요했다. enum으로 타입별 설정을 관리하는 방안도 검토했으나, `allowKakao`가 런타임에 결정되는 값이라 enum의 컴파일 타임 상수와 맞지 않았다. 어떤 방식이든 구조 리팩토링 범위를 벗어나 새 추상화가 추가되므로 기각했다.
 
-- 공통 로직을 완전히 추출할 수 있지만, 원래 코드에 없던 `fieldName` 파라미터라는 새로운 개념이 추가됨
-- 구조 리팩토링 목적과 맞지 않게 새 코드가 늘어남
+**DTO Bean Validation 활용 (일부 채택)**
 
-**C안 (기각): enum으로 타입별 설정 관리**
+`AdminProductController`는 `@RequestParam`을 사용해 DTO 검증을 거치지 않으므로 `ProductNameValidator`가 전체 검증을 유지해야 한다. 반면 `OptionController`는 `@Valid @RequestBody OptionRequest`를 사용하므로 DTO 어노테이션으로 검증을 완전히 대체할 수 있다.
 
-```java
-public enum NameValidationRule {
-    PRODUCT(15, false, "상품"),
-    OPTION(50, true, "옵션");
-}
-```
+#### 최종 결과
 
-- `fieldName`을 String 대신 enum 필드로 갖는 것이라 B안과 본질적으로 동일
-- `ProductNameValidator`의 `allowKakao`는 런타임에 결정되므로, enum의 컴파일 타임 상수와 맞지 않음 (`PRODUCT` / `PRODUCT_ALLOW_KAKAO` 두 값이 필요해져 오히려 어색해짐)
+| 검증 항목 | ProductRequest | OptionRequest | ProductNameValidator | OptionNameValidator |
+|---|---|---|---|---|
+| blank | `@NotBlank` | `@NotBlank` | ✓ (AdminProductController용) | 삭제 |
+| 길이 | 없음 | `@Size(max=50)` | ✓ (AdminProductController용) | 삭제 |
+| 패턴 | 없음 | `@Pattern(regexp=...)` | ✓ (AdminProductController용) | 삭제 |
+| 카카오 | 불가 | - | ✓ | - |
 
-**A안 (채택): `ALLOWED_PATTERN` 상수만 공통 추출**
-
-```java
-// gift/common/NameValidator.java
-public static final Pattern ALLOWED_PATTERN =
-    Pattern.compile("^[a-zA-Z0-9가-힣ㄱ-ㅎㅏ-ㅣ ()\\[\\]+\\-&/_]*$");
-```
-
-각 Validator는 기존 로직과 에러 메시지를 그대로 유지하고, 정규식만 `NameValidator.ALLOWED_PATTERN`을 참조한다.
-
-#### 결론
-
-에러 메시지가 "상품 이름은...", "옵션 이름은..."으로 서로 달라서, 검증 로직 자체를 하나로 합치려면 반드시 차이를 매개변수화해야 한다. 이는 구조 리팩토링 범위를 벗어나 새 추상화를 추가하는 것이므로, 진짜 중복인 `ALLOWED_PATTERN` 상수만 추출하는 선에서 마무리했다.
+- `OptionNameValidator` 삭제: `OptionRequest` DTO가 모든 검증을 담당
+- `ProductNameValidator` 유지: `AdminProductController`의 `@RequestParam` 경로에 필요
 
 ---
 
@@ -169,18 +153,12 @@ private void validateName(String name) {
 
 #### 해결
 
-throw 로직을 `NameValidator.throwIfInvalid(List<String>)`로 추출하고, 각 Validator에 `validateOrThrow(String name)` 메서드를 추가했다. Controller의 private `validateName()`은 제거했다.
+`ProductNameValidator`에 `validateOrThrow(String name)` 메서드를 추가하고 Controller의 private `validateName()`을 제거했다. `OptionController`는 DTO가 검증을 담당하므로 `validateName()` 제거 후 별도 호출 없음.
 
 ```
-gift.common.NameValidator
-  ├── ALLOWED_PATTERN
-  └── throwIfInvalid(List<String>)   ← throw 로직 공통화
-
 gift.product.ProductNameValidator
-  └── validateOrThrow(name)  →  NameValidator.throwIfInvalid(validate(name))
+  └── validateOrThrow(name)  ← throw 로직 포함, Controller private 메서드 대체
 
-gift.option.OptionNameValidator
-  └── validateOrThrow(name)  →  NameValidator.throwIfInvalid(validate(name))
+gift.option.OptionController
+  └── validateName() 제거  ← OptionRequest @Valid가 대체
 ```
-
-Controller는 `XxxNameValidator.validateOrThrow(name)`을 직접 호출하며, 불필요해진 `import java.util.List`도 `ProductController`에서 제거했다.

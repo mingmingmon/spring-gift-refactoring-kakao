@@ -50,8 +50,8 @@ public class JwtProvider {
      * @return the compact JWT token string
      */
     public String createToken(String email) {
-        final Date now = new Date();
-        final Date expiryDate = new Date(now.getTime() + expiration);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
             .subject(email)

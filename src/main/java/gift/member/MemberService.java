@@ -18,7 +18,7 @@ public class MemberService {
         if (memberRepository.existsByEmail(request.email())) {
             throw new IllegalArgumentException("Email is already registered.");
         }
-        Member member = memberRepository.save(new Member(request.email(), request.password()));
+        Member member = memberRepository.save(request.toEntity());
         String token = jwtProvider.createToken(member.getEmail());
         return new TokenResponse(token);
     }

@@ -31,7 +31,7 @@ public class OptionService {
         if (optionRepository.existsByProductIdAndName(productId, request.name())) {
             throw new IllegalArgumentException("이미 존재하는 옵션명입니다.");
         }
-        Option saved = optionRepository.save(new Option(product, request.name(), request.quantity()));
+        Option saved = optionRepository.save(request.toEntity(product));
         return OptionResponse.from(saved);
     }
 

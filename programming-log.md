@@ -290,3 +290,18 @@ Controller가 Repository를 직접 의존하고, 비즈니스 로직(재고 차�
 | `createOrder` | `ResponseEntity<?>` | `ResponseEntity<OrderResponse>` |
 
 `WishController`는 이미 구체 타입(`ResponseEntity<Page<WishResponse>>`, `ResponseEntity<WishResponse>`)을 사용하고 있어 변경 대상이 아니었다.
+
+---
+
+## 10. Request DTO의 toEntity() 팩토리 메서드 통일
+
+엔티티 생성 로직을 Service에서 DTO로 이동해 변환 책임을 응집시켰다.
+
+| DTO | 추가한 메서드 시그니처 | Service 변경 |
+|---|---|---|
+| `MemberRequest` | `toEntity()` | `new Member(email, password)` → `request.toEntity()` |
+| `OptionRequest` | `toEntity(Product product)` | `new Option(product, name, quantity)` → `request.toEntity(product)` |
+| `WishRequest` | `toEntity(Long memberId, Product product)` | `new Wish(memberId, product)` → `request.toEntity(memberId, product)` |
+| `OrderRequest` | `toEntity(Option option, Long memberId)` | `new Order(option, memberId, quantity, message)` → `request.toEntity(option, memberId)` |
+
+`ProductRequest`는 이미 `toEntity(Category category)`를 가지고 있어 변경 대상이 아니었다.

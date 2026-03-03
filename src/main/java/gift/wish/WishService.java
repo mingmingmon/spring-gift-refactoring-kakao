@@ -43,7 +43,7 @@ public class WishService {
         return wishRepository.findByMemberIdAndProductId(member.getId(), product.getId())
             .map(existing -> new AddWishResult(WishResponse.from(existing), false))
             .orElseGet(() -> new AddWishResult(
-                WishResponse.from(wishRepository.save(new Wish(member.getId(), product))), true));
+                WishResponse.from(wishRepository.save(request.toEntity(member.getId(), product))), true));
     }
 
     public void removeWish(String authorization, Long id) {

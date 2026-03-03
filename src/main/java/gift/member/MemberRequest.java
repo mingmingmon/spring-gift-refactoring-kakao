@@ -13,4 +13,7 @@ public record MemberRequest(
     @NotBlank @Email String email,
     @NotBlank String password
 ) {
+    public Member toEntity() {
+        return new Member(email, password);
+    }
 }

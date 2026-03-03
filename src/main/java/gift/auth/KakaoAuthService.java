@@ -1,5 +1,6 @@
 package gift.auth;
 
+import gift.kakao.KakaoLoginClient;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import org.springframework.stereotype.Service;

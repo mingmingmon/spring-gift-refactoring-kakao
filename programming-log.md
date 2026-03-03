@@ -226,3 +226,18 @@ Controller가 Repository를 직접 의존하고, 비즈니스 로직(재고 차�
 #### 멱등성 보존
 
 `addWish`에서 중복 위시 추가 시 `200 OK`, 신규 추가 시 `201 Created`를 반환하는 기존 동작을 유지했다. Service에서 `AddWishResult(WishResponse wish, boolean created)` 레코드를 반환해 Controller가 상태코드를 결정한다.
+
+---
+
+## 5. 패키지 이동
+
+카카오 외부 API를 호출하는 클라이언트 클래스들을 `gift.kakao` 패키지로 묶었다.
+
+| 클래스 | 이전 패키지 | 이후 패키지 |
+|---|---|---|
+| `KakaoMessageClient` | `gift.order` | `gift.kakao` |
+| `KakaoLoginClient` | `gift.auth` | `gift.kakao` |
+
+#### 이유
+
+두 클래스는 도메인(주문, 인증)에 속한 클래스가 아니라 카카오 외부 API와 통신하는 인프라 클래스다. 각 도메인 패키지에 흩어져 있으면 외부 API 의존성이 어디에 있는지 파악하기 어렵고, 향후 카카오 관련 설정이나 클라이언트를 추가할 때 위치가 불명확해진다. `gift.kakao`로 모아 외부 API 호출 지점을 한 곳에서 관리한다.

@@ -2,6 +2,7 @@ package gift.order;
 
 import gift.auth.AuthenticationException;
 import gift.auth.AuthenticationResolver;
+import gift.kakao.KakaoMessageClient;
 import gift.member.Member;
 import gift.member.MemberRepository;
 import gift.option.Option;

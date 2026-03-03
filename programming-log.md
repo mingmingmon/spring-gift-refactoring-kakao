@@ -162,3 +162,67 @@ gift.product.ProductNameValidator
 gift.option.OptionController
   └── validateName() 제거  ← OptionRequest @Valid가 대체
 ```
+
+---
+
+### 3-3. 인증 처리 통일
+
+#### 문제
+
+`WishController`와 `OrderController` 양쪽에 동일한 패턴이 반복되었다.
+
+```java
+var member = authenticationResolver.extractMember(authorization);
+if (member == null) {
+    return ResponseEntity.status(401).build();
+}
+```
+
+#### 해결
+
+인증 실패 시 `AuthenticationException`(RuntimeException)을 throw하고, Controller의 `@ExceptionHandler`에서 401로 매핑하도록 변경했다. 인증 추출과 null 체크 로직은 각 Service의 private `extractMember()` 메서드로 이동했다.
+
+---
+
+## 4. 서비스 계층 추출
+
+#### 배경
+
+Controller가 Repository를 직접 의존하고, 비즈니스 로직(재고 차감, 포인트 차감, 중복 체크, 소유권 검증 등)이 Controller에 인라인으로 혼재하고 있었다.
+
+#### 신규 예외 클래스
+
+| 클래스 | 패키지 | HTTP 상태 |
+|---|---|---|
+| `AuthenticationException` | `gift.auth` | 401 |
+| `ForbiddenException` | `gift.auth` | 403 |
+
+404는 기존 `NoSuchElementException` 활용.
+
+#### 생성된 Service 클래스
+
+| 클래스 | 패키지 | 주요 책임 |
+|---|---|---|
+| `MemberService` | `gift.member` | 회원 가입/로그인, JWT 발급 |
+| `KakaoAuthService` | `gift.auth` | 카카오 OAuth URI 생성, 콜백 처리 |
+| `ProductService` | `gift.product` | 상품 CRUD, 이름 검증 |
+| `OptionService` | `gift.option` | 옵션 CRUD, 최소 1개 보장 |
+| `WishService` | `gift.wish` | 위시 CRUD, 인증·소유권 검증 |
+| `OrderService` | `gift.order` | 주문 플로우 (재고차감 → 포인트차감 → 저장 → 카카오알림) |
+
+#### Controller 변경
+
+각 Controller에서 Repository 직접 의존성을 제거하고 Service만 의존하도록 변경했다. `@ExceptionHandler`를 추가해 Service에서 throw된 예외를 HTTP 상태코드로 매핑한다.
+
+| Controller | 제거한 의존성 | 추가한 ExceptionHandler |
+|---|---|---|
+| `OrderController` | `OptionRepository`, `WishRepository`, `MemberRepository`, `AuthenticationResolver`, `KakaoMessageClient` | `AuthenticationException → 401` |
+| `WishController` | `ProductRepository`, `AuthenticationResolver` | `AuthenticationException → 401`, `ForbiddenException → 403`, `NoSuchElementException → 404` |
+| `MemberController` | `MemberRepository`, `JwtProvider` | (기존 유지) |
+| `KakaoAuthController` | `KakaoLoginProperties`, `KakaoLoginClient`, `MemberRepository`, `JwtProvider` | (기존 유지) |
+| `ProductController` | `CategoryRepository` | `NoSuchElementException → 404` |
+| `OptionController` | `ProductRepository` | `NoSuchElementException → 404` |
+
+#### 멱등성 보존
+
+`addWish`에서 중복 위시 추가 시 `200 OK`, 신규 추가 시 `201 Created`를 반환하는 기존 동작을 유지했다. Service에서 `AddWishResult(WishResponse wish, boolean created)` 레코드를 반환해 Controller가 상태코드를 결정한다.

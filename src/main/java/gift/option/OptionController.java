@@ -49,8 +49,6 @@ public class OptionController {
         @PathVariable Long productId,
         @Valid @RequestBody OptionRequest request
     ) {
-        validateName(request.name());
-
         Product product = productRepository.findById(productId).orElse(null);
         if (product == null) {
             return ResponseEntity.notFound().build();
@@ -88,13 +86,6 @@ public class OptionController {
 
         optionRepository.delete(option);
         return ResponseEntity.noContent().build();
-    }
-
-    private void validateName(String name) {
-        List<String> errors = OptionNameValidator.validate(name);
-        if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(", ", errors));
-        }
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

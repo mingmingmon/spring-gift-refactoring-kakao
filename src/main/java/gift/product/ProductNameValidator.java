@@ -12,6 +12,13 @@ public class ProductNameValidator {
     private ProductNameValidator() {
     }
 
+    public static void validateOrThrow(String name) {
+        List<String> errors = validate(name);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(", ", errors));
+        }
+    }
+
     public static List<String> validate(String name) {
         return validate(name, false);
     }

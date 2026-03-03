@@ -57,7 +57,19 @@ Location 헤더가 추가되면 **HTTP 응답 헤더가 변경**된다. 클라�
 
 ---
 
-## 5. @Transactional 추가
+## 5. MethodArgumentNotValidException 에러 메시지 노출
+
+### 현황
+
+`OptionController`에 `@ExceptionHandler(IllegalArgumentException.class)`만 존재한다. DTO의 `@Valid` 검증 실패 시 Spring이 던지는 `MethodArgumentNotValidException`은 처리하지 않아, 현재 Spring 기본 에러 응답(timestamp, status, error, path만 포함)이 반환된다.
+
+### 변경 시 영향
+
+`MethodArgumentNotValidException`을 처리하는 핸들러를 추가하면, 기존에 메시지 없이 나가던 400 응답에 **구체적인 에러 메시지가 포함**된다. 클라이언트가 응답 본문을 파싱하는 경우 동작이 달라질 수 있다.
+
+---
+
+## 6. @Transactional 추가
 
 ### 현황
 

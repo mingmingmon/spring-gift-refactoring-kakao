@@ -3,6 +3,7 @@ package gift.order;
 import gift.auth.AuthenticationException;
 import org.springframework.http.HttpStatus;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,7 +26,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getOrders(
+    public ResponseEntity<Page<OrderResponse>> getOrders(
         @RequestHeader("Authorization") String authorization,
         Pageable pageable
     ) {
@@ -33,7 +34,7 @@ public class OrderController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrder(
+    public ResponseEntity<OrderResponse> createOrder(
         @RequestHeader("Authorization") String authorization,
         @Valid @RequestBody OrderRequest request
     ) {

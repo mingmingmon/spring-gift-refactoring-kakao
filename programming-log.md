@@ -241,3 +241,52 @@ Controller가 Repository를 직접 의존하고, 비즈니스 로직(재고 차�
 #### 이유
 
 두 클래스는 도메인(주문, 인증)에 속한 클래스가 아니라 카카오 외부 API와 통신하는 인프라 클래스다. 각 도메인 패키지에 흩어져 있으면 외부 API 의존성이 어디에 있는지 파악하기 어렵고, 향후 카카오 관련 설정이나 클라이언트를 추가할 때 위치가 불명확해진다. `gift.kakao`로 모아 외부 API 호출 지점을 한 곳에서 관리한다.
+
+---
+
+## 6. 네이밍 일관성
+
+`AdminProductController`의 `populateNewForm` 메서드명을 `populateNewFormError`로 변경했다.
+
+| 파일 | 변경 전 | 변경 후 |
+|---|---|---|
+| `AdminProductController.java` | `populateNewForm` | `populateNewFormError` |
+
+`AdminMemberController`는 이미 `populateNewFormError`를 사용하고 있었다. 두 컨트롤러가 동일한 역할(폼 오류 시 모델 세팅)을 하는 메서드에 같은 이름을 쓰도록 통일했다.
+
+---
+
+## 7. 지역 변수 선언 스타일 통일
+
+`var`와 `final` 키워드를 제거하고 구체 타입을 명시하는 방식으로 통일했다.
+
+| 파일 | 변경 내용 |
+|---|---|
+| `KakaoMessageClient.java` | `var` 4개 → `String`, `LinkedMultiValueMap<String, String>` |
+| `AdminMemberController.java` | `final Member` 3개 → `Member` |
+| `AuthenticationResolver.java` | `final String` 2개 → `String` |
+| `JwtProvider.java` | `final Date` 2개 → `Date` |
+
+---
+
+## 8. HTTP 상태코드 표현 통일
+
+`WishController`·`OrderController`의 숫자 리터럴을 `HttpStatus` enum으로 변경했다.
+
+| 파일 | 변경 전 | 변경 후 |
+|---|---|---|
+| `WishController.java` | `status(401)`, `status(403)` | `HttpStatus.UNAUTHORIZED`, `HttpStatus.FORBIDDEN` |
+| `OrderController.java` | `status(401)` | `HttpStatus.UNAUTHORIZED` |
+
+---
+
+## 9. ResponseEntity 반환 타입 명시
+
+`OrderController`의 와일드카드 반환 타입을 구체 타입으로 변경했다.
+
+| 메서드 | 변경 전 | 변경 후 |
+|---|---|---|
+| `getOrders` | `ResponseEntity<?>` | `ResponseEntity<Page<OrderResponse>>` |
+| `createOrder` | `ResponseEntity<?>` | `ResponseEntity<OrderResponse>` |
+
+`WishController`는 이미 구체 타입(`ResponseEntity<Page<WishResponse>>`, `ResponseEntity<WishResponse>`)을 사용하고 있어 변경 대상이 아니었다.

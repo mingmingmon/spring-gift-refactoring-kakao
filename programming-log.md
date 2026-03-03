@@ -305,3 +305,30 @@ Controller가 Repository를 직접 의존하고, 비즈니스 로직(재고 차�
 | `OrderRequest` | `toEntity(Option option, Long memberId)` | `new Order(option, memberId, quantity, message)` → `request.toEntity(option, memberId)` |
 
 `ProductRequest`는 이미 `toEntity(Category category)`를 가지고 있어 변경 대상이 아니었다.
+
+---
+
+## 11. 외부 설정 주입 방식 통일
+
+`JwtProvider`의 `@Value` 개별 주입을 `@ConfigurationProperties` + record 방식으로 변경했다.
+
+`JwtProperties` record를 신규 생성하고, `JwtProvider` 생성자에서 `@Value` 2개를 제거해 `JwtProperties` 단일 주입으로 교체했다.
+
+```java
+// Before
+public JwtProvider(
+    @Value("${jwt.secret}") String secret,
+    @Value("${jwt.expiration}") long expiration
+) {
+    this.key = Keys.hmacShaKeyFor(secret.getBytes());
+    this.expiration = expiration;
+}
+
+// After
+public JwtProvider(JwtProperties properties) {
+    this.key = Keys.hmacShaKeyFor(properties.secret().getBytes());
+    this.expiration = properties.expiration();
+}
+```
+
+`KakaoLoginProperties`가 이미 동일한 패턴(`@ConfigurationProperties` + record)을 사용하고 있어 이에 맞춰 통일했다. `Application`에 `@ConfigurationPropertiesScan`이 선언되어 있어 별도 등록 없이 자동 스캔된다.

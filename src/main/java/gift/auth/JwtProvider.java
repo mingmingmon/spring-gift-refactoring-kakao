@@ -2,8 +2,7 @@ package gift.auth;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -20,13 +19,9 @@ public class JwtProvider {
     private final SecretKey key;
     private final long expiration;
 
-    @Autowired
-    public JwtProvider(
-        @Value("${jwt.secret}") String secret,
-        @Value("${jwt.expiration}") long expiration
-    ) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes());
-        this.expiration = expiration;
+    public JwtProvider(JwtProperties properties) {
+        this.key = Keys.hmacShaKeyFor(properties.secret().getBytes());
+        this.expiration = properties.expiration();
     }
 
     /**
@@ -51,8 +46,8 @@ public class JwtProvider {
      * @return the compact JWT token string
      */
     public String createToken(String email) {
-        final Date now = new Date();
-        final Date expiryDate = new Date(now.getTime() + expiration);
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
             .subject(email)

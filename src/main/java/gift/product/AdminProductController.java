@@ -46,7 +46,7 @@ public class AdminProductController {
     ) {
         List<String> errors = ProductNameValidator.validate(name, true);
         if (!errors.isEmpty()) {
-            populateNewForm(model, errors, name, price, imageUrl, categoryId);
+            populateNewFormError(model, errors, name, price, imageUrl, categoryId);
             return "product/new";
         }
 
@@ -97,7 +97,7 @@ public class AdminProductController {
         return "redirect:/admin/products";
     }
 
-    private void populateNewForm(
+    private void populateNewFormError(
         Model model,
         List<String> errors,
         String name,

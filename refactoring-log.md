@@ -41,3 +41,9 @@
 - **무엇을 바꾸는지**: OptionService가 ProductRepository를 직접 참조하는 구조를 ProductService를 경유하도록 변경한다.
 - **무엇을 바꾸지 않는지**: 옵션 조회/생성/삭제 시 상품 존재 확인, 중복 옵션명 검사, 최소 1개 옵션 제약 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `OptionAcceptanceTest` — `옵션을_생성하면_조회할_수_있다`, `마지막_남은_옵션은_삭제할_수_없다`, `존재하지_않는_상품에_옵션을_생성하면_실패한다` 등 전체 9건 통과로 검증.
+
+## 8. extractMember 중복 제거
+
+- **무엇을 바꾸는지**: WishService와 OrderService에 중복되어 있던 `extractMember()` private 메서드를 제거하고, AuthenticationResolver에 `extractMemberOrThrow()` 메서드를 추가하여 한 곳에서 관리한다.
+- **무엇을 바꾸지 않는지**: 인증 실패 시 AuthenticationException을 던지는 동작은 동일하게 유지한다. 기존 `extractMember()`(null 반환)도 그대로 유지한다.
+- **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `토큰_없이_주문하면_실패한다` 등 전체 6건, `WishAcceptanceTest` — `토큰_없이_위시리스트를_조회하면_실패한다`, `토큰_없이_위시리스트에_추가하면_실패한다` 등 전체 7건 통과로 검증.

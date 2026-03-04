@@ -1,6 +1,5 @@
 package gift.order;
 
-import gift.auth.AuthenticationException;
 import gift.auth.AuthenticationResolver;
 import gift.kakao.KakaoMessageClient;
 import gift.member.Member;
@@ -34,12 +33,12 @@ public class OrderService {
     }
 
     public Page<OrderResponse> getOrders(String authorization, Pageable pageable) {
-        Member member = extractMember(authorization);
+        Member member = authenticationResolver.extractMemberOrThrow(authorization);
         return orderRepository.findByMemberId(member.getId(), pageable).map(OrderResponse::from);
     }
 
     public OrderResponse createOrder(String authorization, OrderRequest request) {
-        Member member = extractMember(authorization);
+        Member member = authenticationResolver.extractMemberOrThrow(authorization);
 
         Option option = optionService.findById(request.optionId());
 
@@ -66,11 +65,4 @@ public class OrderService {
         }
     }
 
-    private Member extractMember(String authorization) {
-        Member member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            throw new AuthenticationException();
-        }
-        return member;
-    }
 }

@@ -30,4 +30,12 @@ public class AuthenticationResolver {
             return null;
         }
     }
+
+    public Member extractMemberOrThrow(String authorization) {
+        Member member = extractMember(authorization);
+        if (member == null) {
+            throw new AuthenticationException();
+        }
+        return member;
+    }
 }

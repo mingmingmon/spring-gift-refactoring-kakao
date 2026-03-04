@@ -1,6 +1,5 @@
 package gift.wish;
 
-import gift.auth.AuthenticationException;
 import gift.auth.AuthenticationResolver;
 import gift.auth.ForbiddenException;
 import gift.member.Member;
@@ -29,7 +28,7 @@ public class WishService {
     }
 
     public Page<WishResponse> getWishes(String authorization, Pageable pageable) {
-        Member member = extractMember(authorization);
+        Member member = authenticationResolver.extractMemberOrThrow(authorization);
         return wishRepository.findByMemberId(member.getId(), pageable).map(WishResponse::from);
     }
 
@@ -37,7 +36,7 @@ public class WishService {
     }
 
     public AddWishResult addWish(String authorization, WishRequest request) {
-        Member member = extractMember(authorization);
+        Member member = authenticationResolver.extractMemberOrThrow(authorization);
         Product product = productService.findById(request.productId());
         return wishRepository.findByMemberIdAndProductId(member.getId(), product.getId())
             .map(existing -> new AddWishResult(WishResponse.from(existing), false))
@@ -46,7 +45,7 @@ public class WishService {
     }
 
     public void removeWish(String authorization, Long id) {
-        Member member = extractMember(authorization);
+        Member member = authenticationResolver.extractMemberOrThrow(authorization);
         Wish wish = wishRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Wish not found."));
         if (!wish.getMemberId().equals(member.getId())) {
@@ -55,11 +54,4 @@ public class WishService {
         wishRepository.delete(wish);
     }
 
-    private Member extractMember(String authorization) {
-        Member member = authenticationResolver.extractMember(authorization);
-        if (member == null) {
-            throw new AuthenticationException();
-        }
-        return member;
-    }
 }

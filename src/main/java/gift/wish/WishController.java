@@ -59,18 +59,4 @@ public class WishController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Void> handleAuthentication(AuthenticationException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    @ExceptionHandler(ForbiddenException.class)
-    public ResponseEntity<Void> handleForbidden(ForbiddenException e) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Void> handleNotFound(NoSuchElementException e) {
-        return ResponseEntity.notFound().build();
-    }
 }

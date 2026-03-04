@@ -43,8 +43,4 @@ public class OrderController {
             .body(response);
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<Void> handleAuthentication(AuthenticationException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
 }

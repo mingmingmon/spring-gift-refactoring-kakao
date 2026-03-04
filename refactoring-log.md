@@ -47,3 +47,9 @@
 - **무엇을 바꾸는지**: WishService와 OrderService에 중복되어 있던 `extractMember()` private 메서드를 제거하고, AuthenticationResolver에 `extractMemberOrThrow()` 메서드를 추가하여 한 곳에서 관리한다.
 - **무엇을 바꾸지 않는지**: 인증 실패 시 AuthenticationException을 던지는 동작은 동일하게 유지한다. 기존 `extractMember()`(null 반환)도 그대로 유지한다.
 - **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `토큰_없이_주문하면_실패한다` 등 전체 6건, `WishAcceptanceTest` — `토큰_없이_위시리스트를_조회하면_실패한다`, `토큰_없이_위시리스트에_추가하면_실패한다` 등 전체 7건 통과로 검증.
+
+## 9. @ExceptionHandler 중복 제거 → GlobalExceptionHandler 도입
+
+- **무엇을 바꾸는지**: 6개 컨트롤러에 반복되던 `@ExceptionHandler`를 `GlobalExceptionHandler`(`@RestControllerAdvice`)로 통합한다. `NoSuchElementException`(404), `AuthenticationException`(401), `ForbiddenException`(403)을 전역 처리한다.
+- **무엇을 바꾸지 않는지**: 각 예외에 대한 HTTP 상태 코드 매핑은 동일하게 유지한다. `IllegalArgumentException`(400)은 기존에 핸들러가 있던 ProductController, OptionController, MemberController에만 유지한다(OrderController 등에 없던 핸들러를 전역으로 추가하면 기존 500 응답이 400으로 바뀌는 작동 변경이 발생하므로).
+- **무엇이 이를 증명하는지**: 전체 38건 테스트 통과로 검증. 특히 `OrderAcceptanceTest.포인트가_부족하면_주문에_실패한다`(500), `OrderAcceptanceTest.재고보다_많은_수량을_주문하면_실패한다`(500)이 기존 상태 코드를 유지함을 확인.

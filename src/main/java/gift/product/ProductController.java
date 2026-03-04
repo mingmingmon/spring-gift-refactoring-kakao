@@ -61,9 +61,4 @@ public class ProductController {
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity.badRequest().body(e.getMessage());
     }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<Void> handleNotFound(NoSuchElementException e) {
-        return ResponseEntity.notFound().build();
-    }
 }

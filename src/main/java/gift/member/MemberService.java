@@ -63,10 +63,7 @@ public class MemberService {
     }
 
     public TokenResponse register(MemberRequest request) {
-        if (memberRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
-        }
-        Member member = memberRepository.save(request.toEntity());
+        Member member = create(request.email(), request.password());
         String token = jwtProvider.createToken(member.getEmail());
         return new TokenResponse(token);
     }

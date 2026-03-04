@@ -9,6 +9,7 @@ import gift.option.OptionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrderService {
@@ -37,6 +38,7 @@ public class OrderService {
         return orderRepository.findByMemberId(member.getId(), pageable).map(OrderResponse::from);
     }
 
+    @Transactional
     public OrderResponse createOrder(String authorization, OrderRequest request) {
         Member member = authenticationResolver.extractMemberOrThrow(authorization);
 

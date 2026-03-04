@@ -53,3 +53,9 @@
 - **무엇을 바꾸는지**: 6개 컨트롤러에 반복되던 `@ExceptionHandler`를 `GlobalExceptionHandler`(`@RestControllerAdvice`)로 통합한다. `NoSuchElementException`(404), `AuthenticationException`(401), `ForbiddenException`(403)을 전역 처리한다.
 - **무엇을 바꾸지 않는지**: 각 예외에 대한 HTTP 상태 코드 매핑은 동일하게 유지한다. `IllegalArgumentException`(400)은 기존에 핸들러가 있던 ProductController, OptionController, MemberController에만 유지한다(OrderController 등에 없던 핸들러를 전역으로 추가하면 기존 500 응답이 400으로 바뀌는 작동 변경이 발생하므로).
 - **무엇이 이를 증명하는지**: 전체 38건 테스트 통과로 검증. 특히 `OrderAcceptanceTest.포인트가_부족하면_주문에_실패한다`(500), `OrderAcceptanceTest.재고보다_많은_수량을_주문하면_실패한다`(500)이 기존 상태 코드를 유지함을 확인.
+
+## 10. OrderService.createOrder() 트랜잭션 경계 설정
+
+- **무엇을 바꾸는지**: `OrderService.createOrder()`에 `@Transactional`을 추가하여 옵션 수량 차감 → 포인트 차감 → 주문 저장을 하나의 트랜잭션으로 묶는다. 중간 실패 시 부분 반영(옵션 수량만 차감되고 주문은 미생성)이 발생하지 않도록 한다.
+- **무엇을 바꾸지 않는지**: 정상 주문 흐름(수량 차감, 포인트 차감, 주문 생성, 카카오 메시지 발송)은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `OrderAcceptanceTest.포인트가_부족하면_옵션_수량이_차감되지_않는다` (신규 추가) — 포인트 0인 회원이 주문 시도 후 옵션 수량을 재조회하여 100 그대로인지 확인. 기존 6건 + 신규 1건 = 전체 39건 테스트 통과.

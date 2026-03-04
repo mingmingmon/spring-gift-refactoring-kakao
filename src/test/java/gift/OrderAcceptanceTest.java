@@ -95,7 +95,7 @@ class OrderAcceptanceTest extends BaseAcceptanceTest {
                 .when()
                 .post("/api/orders")
                 .then()
-                .statusCode(500);
+                .statusCode(400);
     }
 
     @Test
@@ -137,7 +137,7 @@ class OrderAcceptanceTest extends BaseAcceptanceTest {
                 .when()
                 .post("/api/orders")
                 .then()
-                .statusCode(500);
+                .statusCode(400);
     }
 
     @Test

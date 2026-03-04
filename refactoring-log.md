@@ -77,3 +77,9 @@
 - **무엇을 바꾸는지**: `updateProduct()`(API용)의 조회→수정→저장 로직을 제거하고, 내부에서 `update()`를 호출하도록 변경한다. 조회→수정→저장이 `update()` 한 곳에만 존재하게 된다.
 - **무엇을 바꾸지 않는지**: API 상품 수정 시 이름 검증(`ProductNameValidator.validateOrThrow`) 후 수정하는 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `ProductAcceptanceTest` 전체 6건 통과로 검증.
+
+## 14. IllegalArgumentException 전역 처리 — OrderController 포인트 부족·재고 부족 시 500 → 400
+
+- **무엇을 바꾸는지**: `GlobalExceptionHandler`에 `IllegalArgumentException` → 400 핸들러를 추가하고, `ProductController`, `OptionController`, `MemberController`의 개별 `@ExceptionHandler(IllegalArgumentException.class)`를 제거한다. 이로써 `OrderController`에서 발생하는 `IllegalArgumentException`(포인트 부족, 재고 부족)도 400으로 응답한다.
+- **무엇을 바꾸지 않는지**: 기존에 400을 반환하던 `ProductController`, `OptionController`, `MemberController`의 `IllegalArgumentException` 처리는 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `포인트가_부족하면_주문에_실패한다`(400), `재고보다_많은_수량을_주문하면_실패한다`(400) 등 전체 39건 테스트 통과로 검증.

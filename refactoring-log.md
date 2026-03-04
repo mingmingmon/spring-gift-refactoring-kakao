@@ -29,3 +29,9 @@
 - **무엇을 바꾸는지**: OrderService가 OptionRepository, MemberRepository를 직접 참조하는 구조를 OptionService, MemberService를 경유하도록 변경한다. OptionService에 `findById()`, `subtractQuantity()` 메서드를 추가한다.
 - **무엇을 바꾸지 않는지**: 주문 생성 시 옵션 수량 차감, 포인트 차감, 카카오 메시지 발송 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `주문을_생성하면_조회할_수_있다`, `주문_후_옵션_수량이_차감된다`, `포인트가_부족하면_주문에_실패한다`, `재고보다_많은_수량을_주문하면_실패한다` 등 전체 6건 통과로 검증.
+
+## 6. WishService의 ProductRepository 직접 참조 제거
+
+- **무엇을 바꾸는지**: WishService가 ProductRepository를 직접 참조하는 구조를 ProductService를 경유하도록 변경한다. ProductService.findById()는 이미 존재하므로 그대로 활용한다.
+- **무엇을 바꾸지 않는지**: 위시리스트 추가 시 상품 조회, 중복 위시 처리, 삭제 시 권한 검사 동작은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `WishAcceptanceTest` — `위시리스트에_추가하면_조회할_수_있다`, `동일_상품을_중복_추가하면_200을_반환한다`, `다른_사용자의_위시를_삭제하면_403을_반환한다` 등 전체 7건 통과로 검증.

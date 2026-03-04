@@ -5,7 +5,7 @@ import gift.auth.AuthenticationResolver;
 import gift.auth.ForbiddenException;
 import gift.member.Member;
 import gift.product.Product;
-import gift.product.ProductRepository;
+import gift.product.ProductService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,16 +15,16 @@ import java.util.NoSuchElementException;
 @Service
 public class WishService {
     private final WishRepository wishRepository;
-    private final ProductRepository productRepository;
+    private final ProductService productService;
     private final AuthenticationResolver authenticationResolver;
 
     public WishService(
         WishRepository wishRepository,
-        ProductRepository productRepository,
+        ProductService productService,
         AuthenticationResolver authenticationResolver
     ) {
         this.wishRepository = wishRepository;
-        this.productRepository = productRepository;
+        this.productService = productService;
         this.authenticationResolver = authenticationResolver;
     }
 
@@ -38,8 +38,7 @@ public class WishService {
 
     public AddWishResult addWish(String authorization, WishRequest request) {
         Member member = extractMember(authorization);
-        Product product = productRepository.findById(request.productId())
-            .orElseThrow(() -> new NoSuchElementException("Product not found."));
+        Product product = productService.findById(request.productId());
         return wishRepository.findByMemberIdAndProductId(member.getId(), product.getId())
             .map(existing -> new AddWishResult(WishResponse.from(existing), false))
             .orElseGet(() -> new AddWishResult(

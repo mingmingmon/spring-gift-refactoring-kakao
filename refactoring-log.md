@@ -71,3 +71,9 @@
 - **무엇을 바꾸는지**: `ProductService.update()`(Admin용)와 `updateProduct()`(API용)에 `@Transactional`을 추가하여 Category 조회 → Product 조회 → 수정 → 저장을 하나의 트랜잭션으로 묶는다.
 - **무엇을 바꾸지 않는지**: 상품 수정의 정상 동작과 존재하지 않는 상품/카테고리 수정 시 예외 발생은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `ProductAcceptanceTest` 전체 6건 통과로 검증. 단일 엔티티(Product) 수정이므로 롤백 시나리오는 해당 없음.
+
+## 13. ProductService.updateProduct()에서 update() 재사용 — 중복 로직 통합
+
+- **무엇을 바꾸는지**: `updateProduct()`(API용)의 조회→수정→저장 로직을 제거하고, 내부에서 `update()`를 호출하도록 변경한다. 조회→수정→저장이 `update()` 한 곳에만 존재하게 된다.
+- **무엇을 바꾸지 않는지**: API 상품 수정 시 이름 검증(`ProductNameValidator.validateOrThrow`) 후 수정하는 동작은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `ProductAcceptanceTest` 전체 6건 통과로 검증.

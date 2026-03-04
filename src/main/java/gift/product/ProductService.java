@@ -59,14 +59,10 @@ public class ProductService {
         return ProductResponse.from(saved);
     }
 
-    @Transactional
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         ProductNameValidator.validateOrThrow(request.name());
-        Category category = findCategory(request.categoryId());
-        Product product = productRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Product not found."));
-        product.update(request.name(), request.price(), request.imageUrl(), category);
-        return ProductResponse.from(productRepository.save(product));
+        Product product = update(id, request.name(), request.price(), request.imageUrl(), request.categoryId());
+        return ProductResponse.from(product);
     }
 
     public void deleteProduct(Long id) {

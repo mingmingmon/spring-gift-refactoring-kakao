@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
@@ -16,6 +17,27 @@ public class ProductService {
     public ProductService(ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+    }
+
+    public List<Product> findAll() {
+        return productRepository.findAll();
+    }
+
+    public Product findById(Long id) {
+        return productRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("상품이 존재하지 않습니다. id=" + id));
+    }
+
+    public Product create(String name, int price, String imageUrl, Long categoryId) {
+        Category category = findCategory(categoryId);
+        return productRepository.save(new Product(name, price, imageUrl, category));
+    }
+
+    public Product update(Long id, String name, int price, String imageUrl, Long categoryId) {
+        Product product = findById(id);
+        Category category = findCategory(categoryId);
+        product.update(name, price, imageUrl, category);
+        return productRepository.save(product);
     }
 
     public Page<ProductResponse> getProducts(Pageable pageable) {
@@ -30,16 +52,14 @@ public class ProductService {
 
     public ProductResponse createProduct(ProductRequest request) {
         ProductNameValidator.validateOrThrow(request.name());
-        Category category = categoryRepository.findById(request.categoryId())
-            .orElseThrow(() -> new NoSuchElementException("Category not found."));
+        Category category = findCategory(request.categoryId());
         Product saved = productRepository.save(request.toEntity(category));
         return ProductResponse.from(saved);
     }
 
     public ProductResponse updateProduct(Long id, ProductRequest request) {
         ProductNameValidator.validateOrThrow(request.name());
-        Category category = categoryRepository.findById(request.categoryId())
-            .orElseThrow(() -> new NoSuchElementException("Category not found."));
+        Category category = findCategory(request.categoryId());
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new NoSuchElementException("Product not found."));
         product.update(request.name(), request.price(), request.imageUrl(), category);
@@ -48,5 +68,10 @@ public class ProductService {
 
     public void deleteProduct(Long id) {
         productRepository.deleteById(id);
+    }
+
+    private Category findCategory(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+            .orElseThrow(() -> new NoSuchElementException("카테고리가 존재하지 않습니다. id=" + categoryId));
     }
 }

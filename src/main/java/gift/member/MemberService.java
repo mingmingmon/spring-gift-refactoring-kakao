@@ -4,6 +4,9 @@ import gift.auth.JwtProvider;
 import gift.auth.TokenResponse;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 @Service
 public class MemberService {
     private final MemberRepository memberRepository;
@@ -12,6 +15,42 @@ public class MemberService {
     public MemberService(MemberRepository memberRepository, JwtProvider jwtProvider) {
         this.memberRepository = memberRepository;
         this.jwtProvider = jwtProvider;
+    }
+
+    public List<Member> findAll() {
+        return memberRepository.findAll();
+    }
+
+    public Member findById(Long id) {
+        return memberRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Member not found. id=" + id));
+    }
+
+    public Member create(String email, String password) {
+        if (memberRepository.existsByEmail(email)) {
+            throw new IllegalArgumentException("Email is already registered.");
+        }
+        return memberRepository.save(new Member(email, password));
+    }
+
+    public Member update(Long id, String email, String password) {
+        Member member = findById(id);
+        member.update(email, password);
+        return memberRepository.save(member);
+    }
+
+    public void chargePoint(Long id, int amount) {
+        Member member = findById(id);
+        member.chargePoint(amount);
+        memberRepository.save(member);
+    }
+
+    public void delete(Long id) {
+        memberRepository.deleteById(id);
+    }
+
+    public boolean existsByEmail(String email) {
+        return memberRepository.existsByEmail(email);
     }
 
     public TokenResponse register(MemberRequest request) {

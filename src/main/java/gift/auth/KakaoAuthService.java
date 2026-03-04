@@ -2,7 +2,7 @@ package gift.auth;
 
 import gift.kakao.KakaoLoginClient;
 import gift.member.Member;
-import gift.member.MemberRepository;
+import gift.member.MemberService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -12,18 +12,18 @@ import java.net.URI;
 public class KakaoAuthService {
     private final KakaoLoginProperties properties;
     private final KakaoLoginClient kakaoLoginClient;
-    private final MemberRepository memberRepository;
+    private final MemberService memberService;
     private final JwtProvider jwtProvider;
 
     public KakaoAuthService(
         KakaoLoginProperties properties,
         KakaoLoginClient kakaoLoginClient,
-        MemberRepository memberRepository,
+        MemberService memberService,
         JwtProvider jwtProvider
     ) {
         this.properties = properties;
         this.kakaoLoginClient = kakaoLoginClient;
-        this.memberRepository = memberRepository;
+        this.memberService = memberService;
         this.jwtProvider = jwtProvider;
     }
 
@@ -43,10 +43,10 @@ public class KakaoAuthService {
         KakaoLoginClient.KakaoUserResponse kakaoUser = kakaoLoginClient.requestUserInfo(kakaoToken.accessToken());
         String email = kakaoUser.email();
 
-        Member member = memberRepository.findByEmail(email)
+        Member member = memberService.findByEmail(email)
             .orElseGet(() -> new Member(email));
         member.updateKakaoAccessToken(kakaoToken.accessToken());
-        memberRepository.save(member);
+        memberService.save(member);
 
         String token = jwtProvider.createToken(member.getEmail());
         return new TokenResponse(token);

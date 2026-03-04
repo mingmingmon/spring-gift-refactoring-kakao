@@ -65,3 +65,9 @@
 - **무엇을 바꾸는지**: `CategoryService.update()`에 `@Transactional`을 추가하여 Category 조회 → 수정 → 저장을 하나의 트랜잭션으로 묶는다.
 - **무엇을 바꾸지 않는지**: 카테고리 수정의 정상 동작과 존재하지 않는 카테고리 수정 시 예외 발생은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `CategoryAcceptanceTest` 전체 3건 통과로 검증. 단일 엔티티(Category) 수정이므로 롤백 시나리오는 해당 없음.
+
+## 12. ProductService.update(), updateProduct() 트랜잭션 경계 설정
+
+- **무엇을 바꾸는지**: `ProductService.update()`(Admin용)와 `updateProduct()`(API용)에 `@Transactional`을 추가하여 Category 조회 → Product 조회 → 수정 → 저장을 하나의 트랜잭션으로 묶는다.
+- **무엇을 바꾸지 않는지**: 상품 수정의 정상 동작과 존재하지 않는 상품/카테고리 수정 시 예외 발생은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `ProductAcceptanceTest` 전체 6건 통과로 검증. 단일 엔티티(Product) 수정이므로 롤백 시나리오는 해당 없음.

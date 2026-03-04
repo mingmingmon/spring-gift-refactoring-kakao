@@ -4,34 +4,31 @@ import gift.auth.AuthenticationException;
 import gift.auth.AuthenticationResolver;
 import gift.kakao.KakaoMessageClient;
 import gift.member.Member;
-import gift.member.MemberRepository;
+import gift.member.MemberService;
 import gift.option.Option;
-import gift.option.OptionRepository;
-import gift.wish.WishRepository;
+import gift.option.OptionService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
-
 @Service
 public class OrderService {
     private final OrderRepository orderRepository;
-    private final OptionRepository optionRepository;
-    private final MemberRepository memberRepository;
+    private final OptionService optionService;
+    private final MemberService memberService;
     private final AuthenticationResolver authenticationResolver;
     private final KakaoMessageClient kakaoMessageClient;
 
     public OrderService(
         OrderRepository orderRepository,
-        OptionRepository optionRepository,
-        MemberRepository memberRepository,
+        OptionService optionService,
+        MemberService memberService,
         AuthenticationResolver authenticationResolver,
         KakaoMessageClient kakaoMessageClient
     ) {
         this.orderRepository = orderRepository;
-        this.optionRepository = optionRepository;
-        this.memberRepository = memberRepository;
+        this.optionService = optionService;
+        this.memberService = memberService;
         this.authenticationResolver = authenticationResolver;
         this.kakaoMessageClient = kakaoMessageClient;
     }
@@ -44,15 +41,13 @@ public class OrderService {
     public OrderResponse createOrder(String authorization, OrderRequest request) {
         Member member = extractMember(authorization);
 
-        Option option = optionRepository.findById(request.optionId())
-            .orElseThrow(() -> new NoSuchElementException("Option not found."));
+        Option option = optionService.findById(request.optionId());
 
-        option.subtractQuantity(request.quantity());
-        optionRepository.save(option);
+        optionService.subtractQuantity(option.getId(), request.quantity());
 
         int price = option.getProduct().getPrice() * request.quantity();
         member.deductPoint(price);
-        memberRepository.save(member);
+        memberService.save(member);
 
         Order saved = orderRepository.save(request.toEntity(option, member.getId()));
 

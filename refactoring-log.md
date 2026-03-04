@@ -23,3 +23,9 @@
 - **무엇을 바꾸는지**: KakaoAuthService가 MemberRepository를 직접 참조하는 구조를 MemberService를 경유하도록 변경한다. MemberService에 `findByEmail()`, `save()` 메서드를 추가한다.
 - **무엇을 바꾸지 않는지**: 카카오 로그인 시 신규 회원 자동 생성, 기존 회원 카카오 토큰 갱신, JWT 발급 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `MemberAcceptanceTest` — `회원가입하면_토큰이_발급된다`, `로그인하면_토큰이_발급된다`, `중복_이메일로_가입하면_실패한다` 등 전체 7건 통과로 검증. (카카오 OAuth 플로우는 외부 API 의존으로 인수 테스트에 미포함)
+
+## 5. OrderService의 MemberRepository, OptionRepository 직접 참조 제거
+
+- **무엇을 바꾸는지**: OrderService가 OptionRepository, MemberRepository를 직접 참조하는 구조를 OptionService, MemberService를 경유하도록 변경한다. OptionService에 `findById()`, `subtractQuantity()` 메서드를 추가한다.
+- **무엇을 바꾸지 않는지**: 주문 생성 시 옵션 수량 차감, 포인트 차감, 카카오 메시지 발송 동작은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `주문을_생성하면_조회할_수_있다`, `주문_후_옵션_수량이_차감된다`, `포인트가_부족하면_주문에_실패한다`, `재고보다_많은_수량을_주문하면_실패한다` 등 전체 6건 통과로 검증.

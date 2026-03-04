@@ -17,6 +17,17 @@ public class OptionService {
         this.productRepository = productRepository;
     }
 
+    public Option findById(Long id) {
+        return optionRepository.findById(id)
+            .orElseThrow(() -> new NoSuchElementException("Option not found."));
+    }
+
+    public void subtractQuantity(Long optionId, int quantity) {
+        Option option = findById(optionId);
+        option.subtractQuantity(quantity);
+        optionRepository.save(option);
+    }
+
     public List<OptionResponse> getOptions(Long productId) {
         productRepository.findById(productId)
             .orElseThrow(() -> new NoSuchElementException("Product not found."));

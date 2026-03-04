@@ -19,7 +19,7 @@ public class OptionService {
 
     public Option findById(Long id) {
         return optionRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Option not found."));
+            .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다."));
     }
 
     public void subtractQuantity(Long optionId, int quantity) {
@@ -52,7 +52,7 @@ public class OptionService {
         }
         Option option = optionRepository.findById(optionId)
             .filter(o -> o.getProduct().getId().equals(productId))
-            .orElseThrow(() -> new NoSuchElementException("Option not found."));
+            .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다."));
         optionRepository.delete(option);
     }
 }

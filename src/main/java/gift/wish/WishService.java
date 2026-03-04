@@ -47,7 +47,7 @@ public class WishService {
     public void removeWish(String authorization, Long id) {
         Member member = authenticationResolver.extractMemberOrThrow(authorization);
         Wish wish = wishRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Wish not found."));
+            .orElseThrow(() -> new NoSuchElementException("위시가 존재하지 않습니다."));
         if (!wish.getMemberId().equals(member.getId())) {
             throw new ForbiddenException();
         }

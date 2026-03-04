@@ -24,12 +24,12 @@ public class MemberService {
 
     public Member findById(Long id) {
         return memberRepository.findById(id)
-            .orElseThrow(() -> new NoSuchElementException("Member not found. id=" + id));
+            .orElseThrow(() -> new NoSuchElementException("회원이 존재하지 않습니다. id=" + id));
     }
 
     public Member create(String email, String password) {
         if (memberRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email is already registered.");
+            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
         return memberRepository.save(new Member(email, password));
     }
@@ -64,7 +64,7 @@ public class MemberService {
 
     public TokenResponse register(MemberRequest request) {
         if (memberRepository.existsByEmail(request.email())) {
-            throw new IllegalArgumentException("Email is already registered.");
+            throw new IllegalArgumentException("이미 등록된 이메일입니다.");
         }
         Member member = memberRepository.save(request.toEntity());
         String token = jwtProvider.createToken(member.getEmail());
@@ -73,9 +73,9 @@ public class MemberService {
 
     public TokenResponse login(MemberRequest request) {
         Member member = memberRepository.findByEmail(request.email())
-            .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
+            .orElseThrow(() -> new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다."));
         if (member.getPassword() == null || !member.getPassword().equals(request.password())) {
-            throw new IllegalArgumentException("Invalid email or password.");
+            throw new IllegalArgumentException("이메일 또는 비밀번호가 올바르지 않습니다.");
         }
         String token = jwtProvider.createToken(member.getEmail());
         return new TokenResponse(token);

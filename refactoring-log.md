@@ -83,3 +83,16 @@
 - **무엇을 바꾸는지**: `GlobalExceptionHandler`에 `IllegalArgumentException` → 400 핸들러를 추가하고, `ProductController`, `OptionController`, `MemberController`의 개별 `@ExceptionHandler(IllegalArgumentException.class)`를 제거한다. 이로써 `OrderController`에서 발생하는 `IllegalArgumentException`(포인트 부족, 재고 부족)도 400으로 응답한다.
 - **무엇을 바꾸지 않는지**: 기존에 400을 반환하던 `ProductController`, `OptionController`, `MemberController`의 `IllegalArgumentException` 처리는 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `포인트가_부족하면_주문에_실패한다`(400), `재고보다_많은_수량을_주문하면_실패한다`(400) 등 전체 39건 테스트 통과로 검증.
+
+## 15. 에러 메시지 한국어 통일
+
+- **무엇을 바꾸는지**: 영어로 작성된 에러 메시지를 한국어로 통일한다.
+  - `Member.chargePoint()`: "Amount must be greater than zero." → "충전 금액은 1 이상이어야 합니다."
+  - `MemberService.findById()`: "Member not found." → "회원이 존재하지 않습니다."
+  - `MemberService.create()/register()`: "Email is already registered." → "이미 등록된 이메일입니다."
+  - `MemberService.login()`: "Invalid email or password." → "이메일 또는 비밀번호가 올바르지 않습니다."
+  - `ProductService.getProduct()`: "Product not found." → "상품이 존재하지 않습니다."
+  - `OptionService.findById()/deleteOption()`: "Option not found." → "옵션이 존재하지 않습니다."
+  - `WishService.removeWish()`: "Wish not found." → "위시가 존재하지 않습니다."
+- **무엇을 바꾸지 않는지**: 예외 타입과 발생 조건은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: 전체 39건 테스트 통과로 검증.

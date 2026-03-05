@@ -74,6 +74,10 @@ public class Member {
         return kakaoAccessToken;
     }
 
+    public boolean hasKakaoAccessToken() {
+        return kakaoAccessToken != null;
+    }
+
     public int getPoint() {
         return point;
     }

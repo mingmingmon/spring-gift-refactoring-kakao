@@ -120,3 +120,9 @@
 - **무엇을 바꾸는지**: `WishService.removeWish()`에 있던 `wish.getMemberId().equals(member.getId())` 소유권 비교를 `Wish.isOwnedBy(Long memberId)` 메서드로 이동한다.
 - **무엇을 바꾸지 않는지**: 다른 사용자의 위시 삭제 시 `ForbiddenException`을 던지는 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `WishAcceptanceTest` — `다른_사용자의_위시를_삭제하면_403을_반환한다` 등 전체 39건 테스트 통과로 검증.
+
+## 20. Member.hasKakaoAccessToken() 도입 — null 체크를 도메인 메서드로 변환
+
+- **무엇을 바꾸는지**: `OrderService.sendKakaoMessageIfPossible()`에 있던 `member.getKakaoAccessToken() == null` null 체크를 `Member.hasKakaoAccessToken()` 메서드로 이동한다.
+- **무엇을 바꾸지 않는지**: 카카오 토큰이 없을 때 메시지를 보내지 않는 동작은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: 전체 39건 테스트 통과로 검증.

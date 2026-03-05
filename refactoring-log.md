@@ -132,3 +132,9 @@
 - **무엇을 바꾸는지**: `Option.subtractQuantity()`에 `amount <= 0`일 때 `IllegalArgumentException`을 던지는 검증을 추가한다.
 - **무엇을 바꾸지 않는지**: 기존 재고 초과 검사(`amount > this.quantity`)는 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: 전체 39건 테스트 통과로 검증. (음수 수량 주문은 `OrderRequest`의 `@Min(1)` 검증에서 먼저 차단되므로 인수 테스트에 미포함)
+
+## 22. MemberService.chargePoint()/update()에 @Transactional 추가
+
+- **무엇을 바꾸는지**: `MemberService.update()`와 `chargePoint()`에 `@Transactional`을 추가하여 조회→수정→저장을 하나의 트랜잭션으로 묶는다.
+- **무엇을 바꾸지 않는지**: 회원 정보 수정, 포인트 충전의 정상 동작은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `MemberAcceptanceTest` 등 전체 39건 테스트 통과로 검증. 단일 엔티티(Member) 수정이므로 롤백 시나리오는 해당 없음.

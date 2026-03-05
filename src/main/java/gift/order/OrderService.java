@@ -42,9 +42,7 @@ public class OrderService {
     public OrderResponse createOrder(String authorization, OrderRequest request) {
         Member member = authenticationResolver.extractMemberOrThrow(authorization);
 
-        Option option = optionService.findById(request.optionId());
-
-        optionService.subtractQuantity(option.getId(), request.quantity());
+        Option option = optionService.subtractQuantity(request.optionId(), request.quantity());
 
         int price = option.getProduct().getPrice() * request.quantity();
         member.deductPoint(price);

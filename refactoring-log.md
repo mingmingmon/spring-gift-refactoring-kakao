@@ -102,3 +102,9 @@
 - **무엇을 바꾸는지**: `register()`의 이메일 중복 검사 + 저장 로직을 제거하고, 내부에서 `create()`를 호출하도록 변경한다. 이메일 중복 검사가 `create()` 한 곳에만 존재하게 된다.
 - **무엇을 바꾸지 않는지**: 회원가입 시 이메일 중복 검사, JWT 토큰 발급 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `MemberAcceptanceTest` — `회원가입하면_토큰이_발급된다`, `중복_이메일로_가입하면_실패한다` 등 전체 39건 테스트 통과로 검증.
+
+## 17. OptionService.subtractQuantity()가 Option을 반환하도록 변경 — 호출부 단순화
+
+- **무엇을 바꾸는지**: `OptionService.subtractQuantity()`의 반환 타입을 `void`에서 `Option`으로 변경하고, `OrderService.createOrder()`에서 `findById()` + `subtractQuantity()` 두 번 호출을 `subtractQuantity()` 한 번 호출로 단순화한다. Option 조회가 한 번만 발생한다.
+- **무엇을 바꾸지 않는지**: 수량 차감 동작, 재고 부족 시 예외 발생은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `주문_후_옵션_수량이_차감된다`, `재고보다_많은_수량을_주문하면_실패한다`, `포인트가_부족하면_옵션_수량이_차감되지_않는다` 등 전체 39건 테스트 통과로 검증.

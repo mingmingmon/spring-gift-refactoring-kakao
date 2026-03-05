@@ -22,10 +22,10 @@ public class OptionService {
             .orElseThrow(() -> new NoSuchElementException("옵션이 존재하지 않습니다."));
     }
 
-    public void subtractQuantity(Long optionId, int quantity) {
+    public Option subtractQuantity(Long optionId, int quantity) {
         Option option = findById(optionId);
         option.subtractQuantity(quantity);
-        optionRepository.save(option);
+        return optionRepository.save(option);
     }
 
     public List<OptionResponse> getOptions(Long productId) {

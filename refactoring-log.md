@@ -114,3 +114,9 @@
 - **무엇을 바꾸는지**: `OrderService`에 있던 `option.getProduct().getPrice() * request.quantity()` 가격 계산을 `Order.getTotalPrice()`로 이동한다. `OrderService`는 `order.getTotalPrice()`를 호출하여 포인트를 차감한다.
 - **무엇을 바꾸지 않는지**: 주문 총액 계산 로직(단가 × 수량), 포인트 차감 동작은 동일하게 유지한다.
 - **무엇이 이를 증명하는지**: `OrderAcceptanceTest` — `주문을_생성하면_조회할_수_있다`, `포인트가_부족하면_주문에_실패한다` 등 전체 39건 테스트 통과로 검증.
+
+## 19. Wish.isOwnedBy() 도입 — 소유권 판단을 엔티티로 이동
+
+- **무엇을 바꾸는지**: `WishService.removeWish()`에 있던 `wish.getMemberId().equals(member.getId())` 소유권 비교를 `Wish.isOwnedBy(Long memberId)` 메서드로 이동한다.
+- **무엇을 바꾸지 않는지**: 다른 사용자의 위시 삭제 시 `ForbiddenException`을 던지는 동작은 동일하게 유지한다.
+- **무엇이 이를 증명하는지**: `WishAcceptanceTest` — `다른_사용자의_위시를_삭제하면_403을_반환한다` 등 전체 39건 테스트 통과로 검증.
